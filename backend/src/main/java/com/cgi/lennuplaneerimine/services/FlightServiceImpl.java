@@ -27,9 +27,9 @@ public class FlightServiceImpl implements FlightService {
         new Flight(1L, "New York", "Los Angeles",howManyFreeSeats(seats1), 300, 500, LocalDateTime.of(2025, 3, 31, 10, 0), LocalDateTime.of(2025, 3, 31, 15, 0), seatsToJson(seats1));
         new Flight(2L, "Chicago", "Miami", howManyFreeSeats(seats2), 180, 300,LocalDateTime.of(2025, 5, 3, 12, 0), LocalDateTime.of(2025, 5, 3, 15, 0), seatsToJson(seats2));
         new Flight(3L, "San Francisco", "Seattle",howManyFreeSeats(seats3), 120, 200, LocalDateTime.of(2025, 3, 28, 14, 0), LocalDateTime.of(2025, 3, 28, 16, 0), seatsToJson(seats3));
-        new Flight(4L, "Dallas", "Houston", 60, 100, howManyFreeSeats(seats4), LocalDateTime.of(2025, 4, 4, 16, 0), LocalDateTime.of(2025, 4, 4, 17, 40), seatsToJson(seats4));
+        new Flight(4L, "Dallas", "Houston", howManyFreeSeats(seats4), 60, 100,  LocalDateTime.of(2025, 4, 4, 16, 0), LocalDateTime.of(2025, 4, 4, 17, 40), seatsToJson(seats4));
         new Flight(5L, "Boston", "Washington D.C.", howManyFreeSeats(seats5), 90, 150, LocalDateTime.of(2025, 4, 5, 18, 0), LocalDateTime.of(2025, 4, 5, 19, 30), seatsToJson(seats5));
-        new Flight(6L, "Atlanta", "Orlando", 120, 250, howManyFreeSeats(seats6), LocalDateTime.of(2025, 3, 30, 17, 0), LocalDateTime.of(2025, 3, 30, 21, 10), seatsToJson(seats6));
+        new Flight(6L, "Atlanta", "Orlando", howManyFreeSeats(seats6), 120, 250,  LocalDateTime.of(2025, 3, 30, 17, 0), LocalDateTime.of(2025, 3, 30, 21, 10), seatsToJson(seats6));
     }
 
     @Override

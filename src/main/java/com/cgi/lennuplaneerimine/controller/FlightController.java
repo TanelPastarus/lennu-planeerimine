@@ -20,4 +20,6 @@ public class FlightController {
     public ResponseEntity<List<Flight>> getFlights() {
         return new ResponseEntity<>(flightService.getAllFlights(), HttpStatus.OK);
     }
+
+
 }

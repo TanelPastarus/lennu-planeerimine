@@ -15,6 +15,7 @@ public class Flight {
     private Long id;
     private String destination;
     private String origin;
+    private Integer freeSeats;
     private Integer durationMinutes;
     private Integer price;
     private LocalDateTime departureTime;

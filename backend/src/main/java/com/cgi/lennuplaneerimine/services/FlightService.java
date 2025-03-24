@@ -8,6 +8,6 @@ import java.util.Optional;
 
 @Service
 public interface FlightService {
-    Optional<Flight> getFlightsById(Long id);
+    Flight getFlightsById(Long id);
     List<Flight> getAllFlights();
 }

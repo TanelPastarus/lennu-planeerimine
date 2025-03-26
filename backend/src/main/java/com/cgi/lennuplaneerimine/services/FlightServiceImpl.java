@@ -61,7 +61,7 @@ public class FlightServiceImpl implements FlightService {
     // Generate a random 4x10 array with 0s and 1s (0 = free seat, 1 = taken seat)
     private int[][] generateRandomSeats() {
         Random random = new Random();
-        int[][] array = new int[4][10];
+        int[][] array = new int[14][6];
         for (int i = 0; i < array.length; i++) {
             for (int j = 0; j < array[i].length; j++) {
                 array[i][j] = random.nextInt(2);

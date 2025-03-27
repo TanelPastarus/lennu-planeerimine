@@ -24,31 +24,91 @@ const FlightDetail = () => {
     const rowGapLocation = seats.length / 2;
     const columnGapLocation = seats[0].length / 2;
 
+
     const recommendSeats = (seats, numSeats = 1) => {
+
         const seatScores = seats.map((row, rowIndex) =>
             row.map((seat, seatIndex) => {
-                let score = 0;
-                if (seat === 0) {
-                    // Close to window
-                    if (seatIndex === 0 || seatIndex === row.length - 1) score += 3;
-                    // Extra legroom
-                    if (rowIndex === 0 || rowIndex === rowGapLocation) score += 2;
-                    // Close to exit
-                    if (rowIndex === rowGapLocation - 1 || rowIndex === rowGapLocation) score += 1;
-                }
-                return { rowIndex, seatIndex, score };
-            })
-        ).flat();
+                if (seat === 1) return null;
 
-        // Sort seats by score in descending order
+                let score = 0;
+
+                // Window seat
+                if (seatIndex === 0 || seatIndex === row.length - 1) score += 3;
+                // Extra legroom
+                if (rowIndex === 0 || rowIndex === rowGapLocation) score += 2;
+                // Close to exit
+                if (rowIndex === rowGapLocation - 1 || rowIndex === rowGapLocation) score += 2;
+
+                return { rowIndex, seatIndex, score } // Higher score for closer seats
+            })
+        ).flat().filter(seat => seat !== null);
+
+        // Sort seats by distance in ascending order
         seatScores.sort((a, b) => b.score - a.score);
 
-        // Return top recommended seats
-        return seatScores.slice(0, numSeats);
+        let bestChoice = [];
+        let highestScore = 0;
+
+        // Find contiguous seats if multiple seats are needed
+            for (let rowIndex = 0; rowIndex < seats.length; rowIndex++) {
+                for (let seatIndex = 0; seatIndex < seats[rowIndex].length; seatIndex++) {
+                    let contiguousSeats = [];
+                    let totalScore = 0;
+
+                    for (let j = 0; j < numSeats; j++) {
+                        const seat = seatScores.find(s => s.rowIndex === rowIndex && s.seatIndex === seatIndex + j);
+                        if (seat) {
+                            contiguousSeats.push(seat);
+                            totalScore += seat.score;
+                        } else {
+
+                            break;
+                        }
+                    }
+
+                    if (totalScore > highestScore) {
+                        bestChoice = contiguousSeats
+                        highestScore = totalScore;
+                    }
+                }
+            }
+            // Logging
+            console.log(bestChoice.length);
+            console.log(bestChoice)
+
+            // Finds the closest seat to the group of preferred/best seats
+            if (bestChoice.length < numSeats) {
+                let remainingSeats = numSeats - bestChoice.length;
+                while (remainingSeats > 0) {
+                    let nearestSeat = null;
+                    let minDistance = Infinity;
+
+                    for (let i = 0; i < seatScores.length; i++) {
+                        const seat = seatScores[i];
+                        if (!bestChoice.some(s => s.rowIndex === seat.rowIndex && s.seatIndex === seat.seatIndex)) {
+                            const distance = bestChoice.reduce((acc, s) => acc + Math.abs(s.rowIndex - seat.rowIndex) + Math.abs(s.seatIndex - seat.seatIndex), 0);
+                            if (distance < minDistance) {
+                                minDistance = distance;
+                                nearestSeat = seat;
+                            }
+                        }
+                    }
+
+                    if (nearestSeat) {
+                        bestChoice.push(nearestSeat);
+                        remainingSeats--;
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+        return bestChoice;
     };
 
     const handleRecommendSeats = () => {
-        const recommended = recommendSeats(seats, numSeats); // Example: recommend 2 seats
+        const recommended = recommendSeats(seats, numSeats);// Example: recommend 2 seats
         setRecommendedSeats(recommended);
     };
 
@@ -60,8 +120,8 @@ const FlightDetail = () => {
             <p>Price: {flight.price}</p>
             <p>Free seats: {flight.freeSeats}</p>
             <p>Duration: {flight.durationMinutes} minutes</p>
-            <p>Departure: {flight.departureTime}</p>
-            <p>Arrival: {flight.arrivalTime}</p>
+            <p>Departure: {new Date(flight.departureTime).toDateString()}</p>
+            <p>Arrival: {new Date(flight.arrivalTime).toDateString()}</p>
             <div className="seats-guide">
                 <div className="guide-item">
                     <div className="seat free"></div>

@@ -1,7 +1,8 @@
 import React, {useEffect, useState} from 'react'
-import {getAllEmployees} from '../services/EmployeeService'
-import { Link } from 'react-router-dom';
+import {getAllFlights} from '../services/FlightService.js'
+import {Link, Route, Routes} from 'react-router-dom';
 import '../flightComponentStyle.css'
+import BoughtFlightComponent from "./BoughtFlightComponent.jsx";
 
 const FlightComponent = () => {
 
@@ -14,7 +15,7 @@ const FlightComponent = () => {
     const [price, setPrice] = useState('');
 
     useEffect(() => {
-        getAllEmployees().then((response) => {
+        getAllFlights().then((response) => {
             setFlights(response.data);
             setFilteredFlights(response.data);
         }).catch((error) => {
@@ -47,6 +48,15 @@ const FlightComponent = () => {
         setFilteredFlights(filtered);
     };
 
+    const resetFilter = () => {
+        setOrigin('');
+        setDestination('');
+        setDate('');
+        setDuration('');
+        setPrice('');
+        setFilteredFlights(flights);
+    };
+
     const convertHours = (minutes) => {
         const hours = Math.floor(minutes / 60);
 
@@ -76,6 +86,9 @@ const FlightComponent = () => {
     return (
         <div>
             <h2>Flights</h2>
+            <Routes>
+            <Route path="/bought-flights" element={<BoughtFlightComponent />} />
+            </Routes>
             <div className="filter-container">
                 <input
                     type="text"
@@ -107,7 +120,10 @@ const FlightComponent = () => {
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
                 />
+
                 <button className="button" onClick={handleFilter}>Filter</button>
+
+                <button className="button" onClick={resetFilter}>Reset</button>
             </div>
             <div className="card-container">
                 {filteredFlights.map(flight => (

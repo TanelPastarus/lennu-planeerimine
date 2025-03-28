@@ -87,6 +87,47 @@ h2 {
 FlightDetail
 
  */
+
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 24px;
+}
+
+/* Flight information styling */
+.flight-info p {
+    margin: 5px 0;
+    color: #555;
+}
+
+/* Seat selection styling */
+.seat-selection {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.seat-selection label {
+    font-size: 16px;
+    color: #333;
+}
+
+.chosen-seats {
+    display: flex;
+    color: black;
+}
+
+.seat-selection input {
+    padding: 5px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+
 .seats-guide {
     display: flex;
     justify-content: center;
@@ -104,6 +145,8 @@ FlightDetail
     margin: 0;
     color: #555;
 }
+
+
 
 .example-seat {
     border: 1px solid #ddd;

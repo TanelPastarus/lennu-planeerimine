@@ -1,6 +1,8 @@
 package com.cgi.lennuplaneerimine.services;
 
+import com.cgi.lennuplaneerimine.models.BoughtFlight;
 import com.cgi.lennuplaneerimine.models.Flight;
+import com.cgi.lennuplaneerimine.repositories.BoughtFlightRepository;
 import com.cgi.lennuplaneerimine.repositories.FlightRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
@@ -14,9 +16,11 @@ import java.util.Random;
 @Service
 public class FlightServiceImpl implements FlightService {
     private final FlightRepository flightRepository;
+    private final BoughtFlightRepository boughtFlightRepository;
 
-    public FlightServiceImpl(FlightRepository flightRepository) {
+    public FlightServiceImpl(FlightRepository flightRepository, BoughtFlightRepository boughtFlightRepository) {
         this.flightRepository = flightRepository;
+        this.boughtFlightRepository = boughtFlightRepository;
 
         int[][] seats1 = generateRandomSeats();
         int[][] seats2 = generateRandomSeats();
@@ -42,11 +46,38 @@ public class FlightServiceImpl implements FlightService {
     }
 
     @Override
+    public List<BoughtFlight> getAllBoughtFlights() {
+        Iterable<BoughtFlight> flights = boughtFlightRepository.findAll();
+        List<BoughtFlight> flightList = new ArrayList<>();
+        flights.forEach(flightList::add);
+        return flightList;
+    }
+
+    @Override
     public Flight getFlightsById(Long id) {
         Optional<Flight> flight = flightRepository.findById(id);
 
         return flight.orElse(null);
     }
+
+    @Override
+    public void updateFlight(Flight flight) {
+        Flight oldFlight = flightRepository.findById(flight.getId()).get();
+
+        oldFlight.setJsonSeats(flight.getJsonSeats());
+        flightRepository.save(oldFlight);
+    }
+
+    @Override
+    public void saveBoughtFlight(BoughtFlight boughtFlight) {
+        BoughtFlight newBoughtFlight = new BoughtFlight();
+        newBoughtFlight.setFlight(boughtFlight.getFlight());
+        newBoughtFlight.setTicketList(boughtFlight.getTicketList());
+
+        boughtFlightRepository.save(newBoughtFlight);
+    }
+
+
 
     private String seatsToJson(int[][] seats) {
         ObjectMapper objectMapper = new ObjectMapper();

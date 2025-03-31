@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {getFlightById, saveBoughtFlight, updateFlight} from '../services/FlightService.js';
+import {convertHours, hoursAndMinutes, options} from  '../services/Utility.js'
 
 const FlightDetail = () => {
     const { id } = useParams();
     const [flight, setFlight] = useState(null);
     const [recommendedSeats, setRecommendedSeats] = useState([]);
     const [numSeats, setNumSeats] = useState(1);
+    const [preference, setPreference] = useState('default');
 
     useEffect(() => {
         getFlightById(id).then((response) => {
@@ -24,47 +26,29 @@ const FlightDetail = () => {
     const rowGapLocation = seats.length / 2;
     const columnGapLocation = seats[0].length / 2;
 
-    const options = {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-    };
-
-    const hoursAndMinutes = (date) => {
-        const convertedDate = new Date(date);
-        let hours = convertedDate.getHours();
-        let minutes = convertedDate.getMinutes();
-
-        if (hours === 0) hours += "0";
-        if (minutes === 0) minutes += "0";
-
-        return hours + ":" + minutes;
-    }
-
-    const convertHours = (minutes) => {
-        const hours = Math.floor(minutes / 60);
-
-        if (hours > 1) return hours + " hours";
-        if (hours > 0) return 1 + " hour";
-        return "";
-    }
-
-
     const recommendSeats = (seats, numSeats = 1) => {
 
         const seatScores = seats.map((row, rowIndex) =>
             row.map((seat, seatIndex) => {
+                // If the seat is taken
                 if (seat === 1) return null;
 
                 let score = 0;
 
+                // Default means that it will prefer window seat the most and close to the exit the least.
+                if (preference === 'default') {
                 // Window seat
                 if (seatIndex === 0 || seatIndex === row.length - 1) score += 3;
-                // Extra legroom
+                // More legroom
                 if (rowIndex === 0 || rowIndex === rowGapLocation) score += 2;
-                // Close to exit
+                // Close to the exit
                 if (rowIndex === rowGapLocation - 1 || rowIndex === rowGapLocation) score += 1;
+            }
+
+
+                if (preference === 'window' && (seatIndex === 0 || seatIndex === row.length - 1)) score += 1;
+                if (preference === 'legroom' && (rowIndex === 0 || rowIndex === rowGapLocation)) score += 1;
+                if (preference === 'exit' && (rowIndex === rowGapLocation - 1 || rowIndex === rowGapLocation)) score += 1;
 
                 return { rowIndex, seatIndex, score }
             })
@@ -76,7 +60,7 @@ const FlightDetail = () => {
         let bestChoice = [];
         let highestScore = 0;
 
-        // Find contiguous seats if multiple seats are needed
+        // Finds seats next to eachother if possible
             for (let rowIndex = 0; rowIndex < seats.length; rowIndex++) {
                 for (let seatIndex = 0; seatIndex < seats[rowIndex].length; seatIndex++) {
                     let contiguousSeats = [];
@@ -87,7 +71,6 @@ const FlightDetail = () => {
                         if (seat) {
                             contiguousSeats.push(seat);
                             totalScore += seat.score;
-                            // console.log(JSON.parse(JSON.stringify(contiguousSeats)), totalScore)
                         } else {
                             break;
                         }
@@ -99,9 +82,6 @@ const FlightDetail = () => {
                     }
                 }
             }
-            // Logging
-            //console.log(bestChoice.length);
-          //  console.log(bestChoice)
 
             // Finds the closest seat to the group of preferred/best seats
             if (bestChoice.length < numSeats) {
@@ -144,7 +124,7 @@ const FlightDetail = () => {
                 return;
             }
 
-            const recommended = recommendSeats(seats, numSeats);// Example: recommend 2 seats
+            const recommended = recommendSeats(seats, numSeats);
             setRecommendedSeats(recommended);
 
     };
@@ -180,6 +160,11 @@ const FlightDetail = () => {
                 })
             );
 
+            const tickets = recommendedSeats.map(seat => ({
+                row: seat.rowIndex,
+                seat: seat.seatIndex
+            }));
+
             const updatedFlight = {
                 ...flight,
                 jsonSeats: JSON.stringify(updatedSeats)
@@ -187,12 +172,14 @@ const FlightDetail = () => {
 
             const boughtFlight = {
                 flight: updatedFlight,
-                ticketList: recommendedSeats
+                ticketList: tickets
             }
 
-            console.log(boughtFlight);
             updateFlight(updatedFlight)
             saveBoughtFlight(boughtFlight)
+            setFlight(updatedFlight)
+            setRecommendedSeats([])
+            alert("Purchase complete!");
 
         } else {
             alert(`Please select exactly ${numSeats} seats.`);
@@ -207,7 +194,7 @@ const FlightDetail = () => {
             <div className="flight-info">
                 <p><strong>Origin:</strong> {flight.origin}</p>
                 <p><strong>Destination:</strong> {flight.destination}</p>
-                <p><strong>Price:</strong> {flight.price}</p>
+                <p><strong>Price:</strong> {flight.price} €</p>
                 <p><strong>Date: </strong>{new Date(flight.departureTime).toLocaleDateString("en-US", options)} </p>
                 <p><strong>Free seats:</strong> {flight.freeSeats}</p>
                 <p><strong>Duration:</strong> {convertHours(flight.durationMinutes)} {flight.durationMinutes % 60 > 0 ? flight.durationMinutes % 60 + " minutes" : ""}</p>
@@ -231,6 +218,16 @@ const FlightDetail = () => {
                 </div>
             </div>
 
+            <div className="preference-selection">
+                <label htmlFor="preference" style = {{color: "black"}}>Seat Preference: </label>
+                <select id="preference" value={preference} onChange={(e) => setPreference(e.target.value)}>
+                    <option value="default">Default</option>
+                    <option value="window">Window seat</option>
+                    <option value="legroom">More legroom</option>
+                    <option value="exit">Close to the exit</option>
+                </select>
+            </div>
+
             <div className="seat-selection">
                 <label htmlFor="numSeats">Number of seats: </label>
                 <input
@@ -243,27 +240,28 @@ const FlightDetail = () => {
                 />
             </div>
 
-            <button className="button" onClick={handleRecommendSeats}>Recommend Seats</button>
+            <button className="button" onClick={handleRecommendSeats} style={{marginBottom:"20px"}}>Recommend Seats</button>
 
             <div className="seats-grid">
                 {seats.map((row, rowIndex) => (
                     <React.Fragment key={rowIndex}>
-                    {rowIndex === rowGapLocation && <div className={"row-gap"}> <p className={"exit1"}>EXIT |</p> <p className={"exit2"}>| EXIT</p></div>}
-                    <div className="seats-row">
-                        {row.map((seat, seatIndex) => (
-                            <React.Fragment key={seatIndex}>
+                        {/* Place the gap in the middle of the rows */}
+                        {rowIndex === rowGapLocation && <div className={"row-gap"}> <p className={"exit1"}>EXIT |</p> <p className={"exit2"}>| EXIT</p></div>}
+                        <div className="seats-row">
+                            {row.map((seat, seatIndex) => (
+                                <React.Fragment key={seatIndex}>
 
-                            {seatIndex === columnGapLocation && <div className={"seat-gap"}> {rowIndex + 1} </div>}
-
-                            <div  key={seatIndex} className={`seat ${seat === 1 ? 'taken' : rowIndex === 0 ? 'legroom' : rowIndex === rowGapLocation ? 'legroom' : 'free'} 
-                            ${recommendedSeats.some(s => s.rowIndex === rowIndex && s.seatIndex === seatIndex) ? 'recommended' : ''}`}
-                                  onClick={() => handleSeatClick(rowIndex, seatIndex)}
-                            >
-                                {seat === 1 ? 'X' : ''}
-                            </div>
-                            </React.Fragment>
-                        ))}
-                    </div>
+                                    {/* Place a gap in the middle of columns and add a row number */}
+                                    {seatIndex === columnGapLocation && <div className={"seat-gap"}> {rowIndex + 1} </div>}
+                                    <div  key={seatIndex} className={`seat ${seat === 1 ? 'taken' : rowIndex === 0 ? 'legroom' : rowIndex === rowGapLocation ? 'legroom' : 'free'} 
+                                    ${recommendedSeats.some(s => s.rowIndex === rowIndex && s.seatIndex === seatIndex) ? 'recommended' : ''}`}
+                                          onClick={() => handleSeatClick(rowIndex, seatIndex)}
+                                    >
+                                        {seat === 1 ? 'X' : ''}
+                                    </div>
+                                </React.Fragment>
+                            ))}
+                        </div>
                     </React.Fragment>
                 ))}
             </div>

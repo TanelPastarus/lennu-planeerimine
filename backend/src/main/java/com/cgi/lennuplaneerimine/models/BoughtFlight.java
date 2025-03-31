@@ -20,6 +20,9 @@ public class BoughtFlight {
     @JoinColumn(name = "flight_id")
     private Flight flight;
 
-    @OneToMany
+    @ElementCollection
+    @CollectionTable(name = "bought_flight_ticket_list", joinColumns = @JoinColumn(name = "bought_flight_id"))
+    @AttributeOverride(name = "row", column = @Column(name = "seat_row"))
+    @OrderColumn(name = "ticket_list_id")
     private List<Ticket> ticketList;
 }

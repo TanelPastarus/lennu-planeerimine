@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react'
 import {getAllFlights} from '../services/FlightService.js'
-import {Link, Route, Routes} from 'react-router-dom';
-import '../flightComponentStyle.css'
-import BoughtFlightComponent from "./BoughtFlightComponent.jsx";
+import {Link} from 'react-router-dom';
+import '../App.css'
+import {convertHours, hoursAndMinutes, options} from  '../services/Utility.js'
 
 const FlightComponent = () => {
 
@@ -57,38 +57,9 @@ const FlightComponent = () => {
         setFilteredFlights(flights);
     };
 
-    const convertHours = (minutes) => {
-        const hours = Math.floor(minutes / 60);
-
-        if (hours > 1) return hours + " hours";
-        if (hours > 0) return 1 + " hour";
-        return "";
-    }
-
-    const hoursAndMinutes = (date) => {
-        const convertedDate = new Date(date);
-        let hours = convertedDate.getHours();
-        let minutes = convertedDate.getMinutes();
-
-        if (hours === 0) hours += "0";
-        if (minutes === 0) minutes += "0";
-
-        return hours + ":" + minutes;
-    }
-
-    const options = {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-    };
-
     return (
         <div>
             <h2>Flights</h2>
-            <Routes>
-            <Route path="/bought-flights" element={<BoughtFlightComponent />} />
-            </Routes>
             <div className="filter-container">
                 <input
                     type="text"
@@ -130,7 +101,7 @@ const FlightComponent = () => {
                     <div className="card" key={flight.id}>
                         <div className="card-body">
                             <h3 className="card-title">{flight.origin} -&gt; {flight.destination}</h3>
-                            <p className="card-text">Price: {flight.price}</p>
+                            <p className="card-text">Price: {flight.price} €</p>
                             <p className="card-text">Free seats: {flight.freeSeats}</p>
                             <p className="card-text">Duration: {convertHours(flight.durationMinutes)} {flight.durationMinutes % 60 > 0 ? flight.durationMinutes % 60 + " minutes" : ""}</p>
                             <p className="card-text">Date: {new Date(flight.departureTime).toLocaleDateString("en-US", options)} </p>

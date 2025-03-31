@@ -1,17 +1,18 @@
 package com.cgi.lennuplaneerimine.models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Setter
 @Getter
-@Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Embeddable
 public class Ticket {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
 
     @Column(name = "seat_row")
     private Integer row;

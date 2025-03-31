@@ -2,6 +2,7 @@ package com.cgi.lennuplaneerimine.services;
 
 import com.cgi.lennuplaneerimine.models.BoughtFlight;
 import com.cgi.lennuplaneerimine.models.Flight;
+import com.cgi.lennuplaneerimine.models.Ticket;
 import com.cgi.lennuplaneerimine.repositories.BoughtFlightRepository;
 import com.cgi.lennuplaneerimine.repositories.FlightRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;

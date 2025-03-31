@@ -253,6 +253,8 @@ const FlightDetail = () => {
 
                                     {/* Place a gap in the middle of columns and add a row number */}
                                     {seatIndex === columnGapLocation && <div className={"seat-gap"}> {rowIndex + 1} </div>}
+
+                                    {/* Add a different style to the seat grid, depending on if the seat is taken, if it is recommended (or chosen) or free */}
                                     <div  key={seatIndex} className={`seat ${seat === 1 ? 'taken' : rowIndex === 0 ? 'legroom' : rowIndex === rowGapLocation ? 'legroom' : 'free'} 
                                     ${recommendedSeats.some(s => s.rowIndex === rowIndex && s.seatIndex === seatIndex) ? 'recommended' : ''}`}
                                           onClick={() => handleSeatClick(rowIndex, seatIndex)}
